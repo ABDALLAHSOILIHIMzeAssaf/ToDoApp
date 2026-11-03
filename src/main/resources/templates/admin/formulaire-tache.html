@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: base(~{::content}, ${idTache != null ? 'TodoApp-Modifier une tâche' : 'TodoApp-Créer une tâche'}, 'admin/taches')}">
+
+<div th:fragment="content" class="container py-4">
+    <h1 class="mb-4">
+        <i class="bi" th:classappend="${idTache != null} ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+        <span th:text="${idTache != null} ? 'Modifier une tâche' : 'Créer une tâche'"></span>
+    </h1>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <p class="text-muted">Les champs marqués d'un astérisque (*) sont obligatoires.</p>
+
+            <form th:action="${idTache != null} ? @{/admin/taches/{id}/modifier(id=${idTache})} : @{/admin/taches/creer}"
+                  th:object="${tacheForm}" method="post">
+                <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
+                    La tâche n'a pas été enregistrée. Vérifiez les champs indiqués.
+                </div>
+
+                <div class="mb-3">
+                    <label for="proprietaireId" class="form-label">Propriétaire *</label>
+                    <select th:field="*{utilisateurId}" id="proprietaireId" class="form-select" required
+                            th:classappend="${#fields.hasErrors('utilisateurId')} ? 'is-invalid' : ''"
+                            aria-describedby="proprietaire-erreur">
+                        <option value="">Choisir un propriétaire</option>
+                        <option th:each="proprietaire : ${proprietaires}"
+                                th:value="${proprietaire.idUtilisateur}"
+                                th:text="${proprietaire.prenom + ' ' + proprietaire.nom + ' (' + proprietaire.email + ')'}"></option>
+                    </select>
+                    <div id="proprietaire-erreur" th:if="${#fields.hasErrors('utilisateurId')}"
+                         class="invalid-feedback">Sélectionnez un propriétaire existant.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="titre" class="form-label">Titre *</label>
+                    <input type="text" th:field="*{titre}" class="form-control"
+                           th:classappend="${#fields.hasErrors('titre')} ? 'is-invalid' : ''"
+                           required maxlength="255" pattern=".*\S.*" aria-describedby="titre-aide titre-erreur"
+                           title="Saisissez un titre contenant au moins un caractère autre qu'un espace.">
+                    <div id="titre-aide" class="form-text">255 caractères maximum.</div>
+                    <div id="titre-erreur" th:if="${#fields.hasErrors('titre')}"
+                         class="invalid-feedback" th:errors="*{titre}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea th:field="*{description}" class="form-control" rows="4"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="dateEcheance" class="form-label">Date d'échéance</label>
+                    <input type="date" th:field="*{dateEcheance}" class="form-control"
+                           th:classappend="${#fields.hasErrors('dateEcheance')} ? 'is-invalid' : ''"
+                           aria-describedby="echeance-aide echeance-erreur">
+                    <div id="echeance-aide" class="form-text">Facultative. Vous pouvez laisser ce champ vide.</div>
+                    <div id="echeance-erreur" th:if="${#fields.hasErrors('dateEcheance')}" class="invalid-feedback">
+                        Saisissez une date valide.
+                    </div>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input type="checkbox" th:field="*{terminee}" class="form-check-input">
+                    <label th:for="${#ids.prev('terminee')}" class="form-check-label">Tâche terminée</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:text="${idTache != null} ? 'Enregistrer les modifications' : 'Enregistrer la tâche'"></span>
+                </button>
+                <a th:href="@{/admin/taches}" class="btn btn-outline-secondary ms-2">Annuler</a>
+            </form>
+        </div>
+    </div>
+</div>
+</html>

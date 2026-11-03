@@ -4,13 +4,13 @@ import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDate
 
 // Seules les propriétés proposées à la saisie sont reçues depuis le navigateur.
-class TacheForm {
+open class TacheForm {
     var titre: String = ""
     var description: String = ""
 
     @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     var dateEcheance: LocalDate? = null
 
-    // Proposé uniquement lors de la modification d'une tâche.
+    // Proposé en modification personnelle et dans le backoffice.
     var terminee: Boolean = false
 }

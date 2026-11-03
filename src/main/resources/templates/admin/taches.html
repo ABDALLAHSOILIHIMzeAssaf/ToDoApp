@@ -14,6 +14,15 @@
         Liste de l'ensemble des tâches enregistrées
         dans l'application TodoApp.
     </p>
+    <div th:if="${messageSucces != null}" class="alert alert-success" role="status"
+         th:text="${messageSucces}"></div>
+    <div th:if="${messageErreur != null}" class="alert alert-warning" role="alert"
+         th:text="${messageErreur}"></div>
+    <div class="mb-4">
+        <a th:href="@{/admin/taches/creer}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Créer une tâche
+        </a>
+    </div>
     <!-- Aucune tâche enregistrée -->
     <div th:if="${#lists.isEmpty(listeTaches)}"
          class="alert alert-info"
@@ -45,6 +54,7 @@
                         <th>Date de création</th>
                         <th>Échéance</th>
                         <th>État</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -68,6 +78,18 @@
                                   th:classappend="${tache.terminee} ? 'text-bg-success' : 'text-bg-warning'"
                                   th:text="${tache.terminee} ? 'Terminée' : 'En cours'">
                             </span>
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/taches/{id}/modifier(id=${tache.idTache})}"
+                               class="btn btn-outline-primary btn-sm"
+                               th:aria-label="${'Modifier la tâche : ' + tache.titre}">
+                                <i class="bi bi-pencil-square"></i> Modifier
+                            </a>
+                            <a th:href="@{/admin/taches/{id}/supprimer(id=${tache.idTache})}"
+                               class="btn btn-outline-danger btn-sm ms-2"
+                               th:aria-label="${'Supprimer la tâche : ' + tache.titre}">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </a>
                         </td>
                     </tr>
                     </tbody>

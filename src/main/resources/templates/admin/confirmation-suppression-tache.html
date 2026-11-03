@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: base(~{::content}, 'TodoApp-Supprimer une tâche', 'admin/taches')}">
+
+<div th:fragment="content" class="container py-4">
+    <h1 class="mb-4"><i class="bi bi-trash"></i> Supprimer une tâche</h1>
+
+    <div class="alert alert-warning" role="alert">
+        Confirmez-vous la suppression de cette tâche ?
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h2 class="h5 mb-0" th:text="${tacheASupprimer.titre}"></h2>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-4">
+                <dt class="col-sm-4">Identifiant</dt>
+                <dd class="col-sm-8" th:text="${tacheASupprimer.idTache}"></dd>
+                <dt class="col-sm-4">Propriétaire</dt>
+                <dd class="col-sm-8" th:text="${tacheASupprimer.utilisateur.prenom + ' ' + tacheASupprimer.utilisateur.nom}"></dd>
+                <dt class="col-sm-4">Description</dt>
+                <dd class="col-sm-8" th:text="${tacheASupprimer.description != null ? tacheASupprimer.description : '-'}"></dd>
+                <dt class="col-sm-4">Date de création</dt>
+                <dd class="col-sm-8" th:text="${#temporals.format(tacheASupprimer.dateCreation, 'dd/MM/yyyy HH:mm')}"></dd>
+                <dt class="col-sm-4">Échéance</dt>
+                <dd class="col-sm-8" th:text="${tacheASupprimer.dateEcheance != null ? #temporals.format(tacheASupprimer.dateEcheance, 'dd/MM/yyyy') : '-'}"></dd>
+                <dt class="col-sm-4">État</dt>
+                <dd class="col-sm-8" th:text="${tacheASupprimer.terminee} ? 'Terminée' : 'En cours'"></dd>
+            </dl>
+
+            <p th:if="${tacheASupprimer.referenceDemo != null}" class="text-muted">
+                Cette tâche fait partie des données de démonstration. Elle sera recréée au prochain démarrage de l'application.
+            </p>
+
+            <form th:action="@{/admin/taches/{id}/supprimer(id=${tacheASupprimer.idTache})}" method="post">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Confirmer la suppression
+                </button>
+                <a th:href="@{/admin/taches}" class="btn btn-outline-secondary ms-2">Annuler</a>
+            </form>
+        </div>
+    </div>
+</div>
+</html>

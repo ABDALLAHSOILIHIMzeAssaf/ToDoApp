@@ -3,8 +3,12 @@ package org.ldv.todoapp.model.repository
 import org.ldv.todoapp.model.entity.Tache
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
 interface TacheRepository : JpaRepository<Tache, Long> {
+
+    @Query("SELECT t FROM Tache t JOIN FETCH t.utilisateur WHERE t.idTache = :id")
+    fun findByIdAvecUtilisateur(@Param("id") id: Long): Tache?
 
     fun findByIdTacheAndUtilisateur_IdUtilisateur(
         idTache: Long,
