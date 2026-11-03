@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: base(~{::content}, 'TodoApp-Accueil', 'accueil')}"
+      lang="fr">>
+<div th:fragment="content">
+    <h1>Bienvenue sur TodoApp</h1>
+    <p>Application de gestion des tâches.</p>
+</div>
 </html>
