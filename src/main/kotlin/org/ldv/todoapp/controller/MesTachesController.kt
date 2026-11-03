@@ -166,6 +166,55 @@ class MesTachesController(
         return "redirect:/mes-taches"
     }
 
+    @GetMapping("/mes-taches/{id}/supprimer")
+    fun confirmationSuppression(
+        @PathVariable("id") id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val utilisateur = rechercherUtilisateurActif(session)
+        if (utilisateur == null) {
+            redirectAttributes.addFlashAttribute("messageErreur", "Sélectionnez un utilisateur avant de supprimer une tâche.")
+            return "redirect:/mes-taches"
+        }
+
+        val tache = tacheRepository.findByIdTacheAndUtilisateur_IdUtilisateur(id, requireNotNull(utilisateur.idUtilisateur))
+        if (tache == null) {
+            redirectAttributes.addFlashAttribute("messageErreur", "Cette tâche est introuvable ou ne vous appartient pas.")
+            return "redirect:/mes-taches"
+        }
+
+        // Le GET présente la confirmation et ne supprime aucune donnée.
+        model.addAttribute("tacheASupprimer", tache)
+        return "confirmation-suppression-tache"
+    }
+
+    @PostMapping("/mes-taches/{id}/supprimer")
+    fun supprimerTache(
+        @PathVariable("id") id: Long,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val utilisateur = rechercherUtilisateurActif(session)
+        if (utilisateur == null) {
+            redirectAttributes.addFlashAttribute("messageErreur", "Sélectionnez un utilisateur avant de supprimer une tâche.")
+            return "redirect:/mes-taches"
+        }
+
+        // Recontrôler le propriétaire au POST : le contexte a pu changer depuis le GET.
+        val tache = tacheRepository.findByIdTacheAndUtilisateur_IdUtilisateur(id, requireNotNull(utilisateur.idUtilisateur))
+        if (tache == null) {
+            redirectAttributes.addFlashAttribute("messageErreur", "Cette tâche est introuvable ou ne vous appartient pas.")
+            return "redirect:/mes-taches"
+        }
+
+        tacheRepository.delete(tache)
+
+        redirectAttributes.addFlashAttribute("messageSucces", "La tâche a bien été supprimée.")
+        return "redirect:/mes-taches"
+    }
+
     private fun validerFormulaire(formulaire: TacheForm, bindingResult: BindingResult) {
         // Les contraintes HTML facilitent la saisie mais peuvent être contournées.
         if (formulaire.titre.isBlank()) {

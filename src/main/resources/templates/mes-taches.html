@@ -90,6 +90,11 @@
                                    th:aria-label="${'Modifier la tâche : ' + tache.titre}">
                                     <i class="bi bi-pencil-square"></i> Modifier
                                 </a>
+                                <a th:href="@{/mes-taches/{id}/supprimer(id=${tache.idTache})}"
+                                   class="btn btn-outline-danger btn-sm ms-2"
+                                   th:aria-label="${'Supprimer la tâche : ' + tache.titre}">
+                                    <i class="bi bi-trash"></i> Supprimer
+                                </a>
                             </td>
                         </tr>
                         </tbody>
