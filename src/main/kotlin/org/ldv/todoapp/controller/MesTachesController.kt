@@ -12,6 +12,7 @@ import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 @Controller
@@ -72,12 +73,7 @@ class MesTachesController(
             return "redirect:/mes-taches"
         }
 
-        // Les contraintes HTML facilitent la saisie mais peuvent être contournées.
-        if (formulaire.titre.isBlank()) {
-            bindingResult.rejectValue("titre", "titre.obligatoire", "Le titre est obligatoire.")
-        } else if (formulaire.titre.length > 255) {
-            bindingResult.rejectValue("titre", "titre.longueur", "Le titre ne doit pas dépasser 255 caractères.")
-        }
+        validerFormulaire(formulaire, bindingResult)
 
         // BindingResult contient aussi les éventuelles erreurs de conversion de date.
         if (bindingResult.hasErrors()) {
@@ -96,6 +92,87 @@ class MesTachesController(
 
         redirectAttributes.addFlashAttribute("messageSucces", "La tâche a bien été créée.")
         return "redirect:/mes-taches"
+    }
+
+    @GetMapping("/mes-taches/{id}/modifier")
+    fun formulaireModification(
+        @PathVariable("id") id: Long,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val utilisateur = rechercherUtilisateurActif(session)
+        if (utilisateur == null) {
+            redirectAttributes.addFlashAttribute("messageErreur", "Sélectionnez un utilisateur avant de modifier une tâche.")
+            return "redirect:/mes-taches"
+        }
+
+        // La recherche porte à la fois sur la tâche et sur son propriétaire.
+        val tache = tacheRepository.findByIdTacheAndUtilisateur_IdUtilisateur(id, requireNotNull(utilisateur.idUtilisateur))
+        if (tache == null) {
+            redirectAttributes.addFlashAttribute("messageErreur", "Cette tâche est introuvable ou ne vous appartient pas.")
+            return "redirect:/mes-taches"
+        }
+
+        val formulaire = TacheForm().apply {
+            titre = tache.titre
+            description = tache.description.orEmpty()
+            dateEcheance = tache.dateEcheance
+            terminee = tache.terminee
+        }
+        model.addAttribute("tacheForm", formulaire)
+        model.addAttribute("idTache", id)
+        return "formulaire-tache"
+    }
+
+    @PostMapping("/mes-taches/{id}/modifier")
+    fun modifierTache(
+        @PathVariable("id") id: Long,
+        @ModelAttribute("tacheForm") formulaire: TacheForm,
+        bindingResult: BindingResult,
+        model: Model,
+        session: HttpSession,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val utilisateur = rechercherUtilisateurActif(session)
+        if (utilisateur == null) {
+            redirectAttributes.addFlashAttribute("messageErreur", "Sélectionnez un utilisateur avant de modifier une tâche.")
+            return "redirect:/mes-taches"
+        }
+
+        // Vérifier à nouveau le propriétaire au POST, même si le GET a réussi.
+        val tache = tacheRepository.findByIdTacheAndUtilisateur_IdUtilisateur(id, requireNotNull(utilisateur.idUtilisateur))
+        if (tache == null) {
+            redirectAttributes.addFlashAttribute("messageErreur", "Cette tâche est introuvable ou ne vous appartient pas.")
+            return "redirect:/mes-taches"
+        }
+
+        validerFormulaire(formulaire, bindingResult)
+        if (bindingResult.hasErrors()) {
+            // Garder le mode modification et les valeurs saisies lors du retour.
+            model.addAttribute("idTache", id)
+            return "formulaire-tache"
+        }
+
+        // Modifier l'objet existant pour conserver son identifiant, son propriétaire,
+        // sa date de création et son éventuelle référence de démonstration.
+        tache.titre = formulaire.titre.trim()
+        tache.description = formulaire.description.trim().ifBlank { null }
+        tache.dateEcheance = formulaire.dateEcheance
+        tache.terminee = formulaire.terminee
+        tacheRepository.save(tache)
+
+        redirectAttributes.addFlashAttribute("messageSucces", "La tâche a bien été modifiée.")
+        return "redirect:/mes-taches"
+    }
+
+    private fun validerFormulaire(formulaire: TacheForm, bindingResult: BindingResult) {
+        // Les contraintes HTML facilitent la saisie mais peuvent être contournées.
+        if (formulaire.titre.isBlank()) {
+            bindingResult.rejectValue("titre", "titre.obligatoire", "Le titre est obligatoire.")
+        } else if (formulaire.titre.length > 255) {
+            bindingResult.rejectValue("titre", "titre.longueur", "Le titre ne doit pas dépasser 255 caractères.")
+        }
     }
 
     private fun rechercherUtilisateurActif(session: HttpSession): Utilisateur? {

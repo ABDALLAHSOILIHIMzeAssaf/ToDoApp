@@ -61,6 +61,7 @@
                             <th>Date de création</th>
                             <th>Échéance</th>
                             <th>État</th>
+                            <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -82,6 +83,13 @@
                                       th:classappend="${tache.terminee} ? 'text-bg-success' : 'text-bg-warning'"
                                       th:text="${tache.terminee} ? 'Terminée' : 'En cours'">
                                 </span>
+                            </td>
+                            <td>
+                                <a th:href="@{/mes-taches/{id}/modifier(id=${tache.idTache})}"
+                                   class="btn btn-outline-primary btn-sm"
+                                   th:aria-label="${'Modifier la tâche : ' + tache.titre}">
+                                    <i class="bi bi-pencil-square"></i> Modifier
+                                </a>
                             </td>
                         </tr>
                         </tbody>

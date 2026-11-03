@@ -10,4 +10,7 @@ class TacheForm {
 
     @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     var dateEcheance: LocalDate? = null
+
+    // Proposé uniquement lors de la modification d'une tâche.
+    var terminee: Boolean = false
 }

@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{base :: base(~{::content}, 'TodoApp-Créer une tâche', 'mes-taches')}">
+      th:replace="~{base :: base(~{::content}, ${idTache != null ? 'TodoApp-Modifier une tâche' : 'TodoApp-Créer une tâche'}, 'mes-taches')}">
 
 <div th:fragment="content" class="container py-4">
-    <h1 class="mb-4"><i class="bi bi-plus-circle"></i> Créer une tâche personnelle</h1>
+    <h1 class="mb-4">
+        <i class="bi" th:classappend="${idTache != null} ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+        <span th:text="${idTache != null} ? 'Modifier une tâche personnelle' : 'Créer une tâche personnelle'"></span>
+    </h1>
 
     <div class="alert alert-info">
-        <i class="bi bi-person-circle"></i> Cette tâche sera attribuée à
+        <i class="bi bi-person-circle"></i>
+        <span th:text="${idTache != null} ? 'Cette tâche appartient à' : 'Cette tâche sera attribuée à'"></span>
         <strong th:text="${utilisateurActif.prenom + ' ' + utilisateurActif.nom}"></strong>.
     </div>
 
@@ -14,7 +18,8 @@
         <div class="card-body">
             <p class="text-muted">Les champs marqués d'un astérisque (*) sont obligatoires.</p>
 
-            <form th:action="@{/mes-taches/creer}" th:object="${tacheForm}" method="post">
+            <form th:action="${idTache != null} ? @{/mes-taches/{id}/modifier(id=${idTache})} : @{/mes-taches/creer}"
+                  th:object="${tacheForm}" method="post">
                 <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
                     La tâche n'a pas été enregistrée. Vérifiez les champs indiqués.
                 </div>
@@ -46,8 +51,14 @@
                     </div>
                 </div>
 
+                <div th:if="${idTache != null}" class="form-check mb-4">
+                    <input type="checkbox" th:field="*{terminee}" class="form-check-input">
+                    <label th:for="${#ids.prev('terminee')}" class="form-check-label">Tâche terminée</label>
+                </div>
+
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle"></i> Enregistrer la tâche
+                    <i class="bi bi-check-circle"></i>
+                    <span th:text="${idTache != null} ? 'Enregistrer les modifications' : 'Enregistrer la tâche'"></span>
                 </button>
                 <a th:href="@{/mes-taches}" class="btn btn-outline-secondary ms-2">Annuler</a>
             </form>
