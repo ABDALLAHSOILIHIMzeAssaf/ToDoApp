@@ -21,5 +21,9 @@ open class Utilisateur(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fkid_role", referencedColumnName = "id_role", nullable = false)
-    open var role: Role? = null
+    open var role: Role? = null,
+
+    // Repère technique réservé au jeu de démonstration, absent des formulaires.
+    @Column(name = "reference_demo", unique = true, length = 50)
+    open var referenceDemo: String? = null
 )

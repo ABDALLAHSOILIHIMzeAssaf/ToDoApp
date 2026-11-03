@@ -26,7 +26,7 @@ entity "utilisateur" as utilisateur {
     --
     <b>nom</b> : VARCHAR(100) NOT NULL
     <b>prenom</b> : VARCHAR(100) NOT NULL
-    <b>email</b> : VARCHAR(255) NOT NULL
+    <b>email</b> : VARCHAR(255) NOT NULL UNIQUE
     --
     🔗 <b>fkid_role</b> : BIGINT <<FK>> NOT NULL
 }

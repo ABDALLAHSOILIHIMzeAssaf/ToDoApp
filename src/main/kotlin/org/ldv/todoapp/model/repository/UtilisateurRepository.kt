@@ -7,6 +7,8 @@ import org.springframework.data.repository.query.Param
 
 interface UtilisateurRepository : JpaRepository<Utilisateur, Long> {
 
+    fun findByReferenceDemo(referenceDemo: String): Utilisateur?
+
     fun findByEmail(email: String): Utilisateur?
 
     @Query("""

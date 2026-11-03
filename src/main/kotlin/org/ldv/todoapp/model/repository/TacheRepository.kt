@@ -6,6 +6,13 @@ import org.springframework.data.jpa.repository.Query
 
 interface TacheRepository : JpaRepository<Tache, Long> {
 
+    fun findByReferenceDemo(referenceDemo: String): Tache?
+
+    fun findFirstByUtilisateur_IdUtilisateurAndTitreAndReferenceDemoIsNullOrderByIdTacheAsc(
+        idUtilisateur: Long,
+        titre: String
+    ): Tache?
+
     fun findByUtilisateur_IdUtilisateur(
         idUtilisateur: Long
     ): List<Tache>
