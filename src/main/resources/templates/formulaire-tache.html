@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: base(~{::content}, 'TodoApp-Créer une tâche', 'mes-taches')}">
+
+<div th:fragment="content" class="container py-4">
+    <h1 class="mb-4"><i class="bi bi-plus-circle"></i> Créer une tâche personnelle</h1>
+
+    <div class="alert alert-info">
+        <i class="bi bi-person-circle"></i> Cette tâche sera attribuée à
+        <strong th:text="${utilisateurActif.prenom + ' ' + utilisateurActif.nom}"></strong>.
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <p class="text-muted">Les champs marqués d'un astérisque (*) sont obligatoires.</p>
+
+            <form th:action="@{/mes-taches/creer}" th:object="${tacheForm}" method="post">
+                <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
+                    La tâche n'a pas été enregistrée. Vérifiez les champs indiqués.
+                </div>
+
+                <div class="mb-3">
+                    <label for="titre" class="form-label">Titre *</label>
+                    <input type="text" th:field="*{titre}" class="form-control"
+                           th:classappend="${#fields.hasErrors('titre')} ? 'is-invalid' : ''"
+                           required maxlength="255" pattern=".*\S.*" aria-describedby="titre-aide titre-erreur"
+                           title="Saisissez un titre contenant au moins un caractère autre qu'un espace.">
+                    <div id="titre-aide" class="form-text">255 caractères maximum.</div>
+                    <div id="titre-erreur" th:if="${#fields.hasErrors('titre')}"
+                         class="invalid-feedback" th:errors="*{titre}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea th:field="*{description}" class="form-control" rows="4"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="dateEcheance" class="form-label">Date d'échéance</label>
+                    <input type="date" th:field="*{dateEcheance}" class="form-control"
+                           th:classappend="${#fields.hasErrors('dateEcheance')} ? 'is-invalid' : ''"
+                           aria-describedby="echeance-aide echeance-erreur">
+                    <div id="echeance-aide" class="form-text">Facultative. Vous pouvez laisser ce champ vide.</div>
+                    <div id="echeance-erreur" th:if="${#fields.hasErrors('dateEcheance')}" class="invalid-feedback">
+                        Saisissez une date valide.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Enregistrer la tâche
+                </button>
+                <a th:href="@{/mes-taches}" class="btn btn-outline-secondary ms-2">Annuler</a>
+            </form>
+        </div>
+    </div>
+</div>
+</html>
