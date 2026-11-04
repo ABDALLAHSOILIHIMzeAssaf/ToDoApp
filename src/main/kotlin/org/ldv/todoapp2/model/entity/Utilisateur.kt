@@ -9,7 +9,7 @@ open class Utilisateur(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_utilisateur")
-    open var idTache: Long? = null,
+    open var idUtilisateur: Long? = null,
 
     @Column(name = "nom", nullable = false, length = 100)
     open var nom: String = "",

@@ -15,7 +15,7 @@ ORDER BY u.nom, u.prenom
 """)
     fun findAllAvecRole(): List<Utilisateur>
 
-    @Query("""
+   @Query("""
 SELECT u
 FROM Utilisateur u
 JOIN FETCH u.role

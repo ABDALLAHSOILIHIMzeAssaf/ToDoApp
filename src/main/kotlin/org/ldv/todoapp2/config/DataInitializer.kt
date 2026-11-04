@@ -10,12 +10,12 @@ import org.ldv.todoapp2.repository.TacheRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import org.springframework.aot.hint.TypeReference.listOf
+
 
 
 
 @Component
-open class DataInitializer(
+class DataInitializer(
     private val roleRepository: RoleRepository,
     private val utilisateurRepository: UtilisateurRepository,
     private val tacheRepository: TacheRepository
@@ -78,10 +78,60 @@ open class DataInitializer(
 
         // 3. Création des tâches
         val aujourdHui = LocalDate.now()
-        val taches = listOf(
-        // Prochaine étape, on rajoute les objets Tache.
+        val taches: MutableList<Tache> = mutableListOf(
+            Tache(
+                titre = "Préparer le TP Spring Boot",
+                description = "Rédiger le support de cours MVC.",
+                dateEcheance = aujourdHui.plusDays(7),
+                utilisateur = alice
+            ),
+            Tache(
+                titre = "Installer IntelliJ IDEA",
+                description = "Configurer l'environnement Kotlin.",
+                dateEcheance = aujourdHui.minusDays(2),
+                terminee = true,
+                utilisateur = alice
+            ),
+            Tache(
+                titre = "Réviser les requêtes SQL",
+                dateEcheance = aujourdHui.plusDays(3),
+                utilisateur = bob
+            ),
+            Tache(
+                titre = "Terminer le projet JDBC",
+                description = "Finaliser les méthodes DAO.",
+                dateEcheance = aujourdHui.minusDays(5),
+                utilisateur = bob
+            ),
+            Tache(
+                titre = "Étudier les annotations JPA",
+                dateEcheance = aujourdHui.plusDays(10),
+                utilisateur = claire
+            ),
+            Tache(
+                titre = "Lire la documentation Thymeleaf",
+                terminee = true,
+                utilisateur = claire
+            ),
+            Tache(
+                titre = "Vérifier les comptes utilisateurs",
+                dateEcheance = aujourdHui.plusDays(1),
+                utilisateur = admin
+            ),
+            Tache(
+                titre = "Contrôler les tâches enregistrées",
+                utilisateur = admin
+            )
         )
+
         tacheRepository.saveAll(taches)
+
+        println("Initialisation terminée :")
+        println("- 2 rôles")
+        println("- 4 utilisateurs")
+        println("- ${taches.size} tâches")
+
+
     }
 
 
