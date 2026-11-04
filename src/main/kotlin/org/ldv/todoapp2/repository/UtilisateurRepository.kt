@@ -13,5 +13,14 @@ FROM Utilisateur u
 JOIN FETCH u.role
 ORDER BY u.nom, u.prenom
 """)
-    fun findAllAvecRole(@Param("id")id:Long): Utilisateur?
+    fun findAllAvecRole(): List<Utilisateur>
+
+    @Query("""
+SELECT u
+FROM Utilisateur u
+JOIN FETCH u.role
+WHERE u.idUtilisateur = :id
+""")
+    fun findByIdAvecRole(@Param("id") id: Long): Utilisateur?
+
 }

@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.Query
 interface TacheRepository : JpaRepository<Tache, Long> {
     fun findByUtilisateur_IdUtilisateur(idUtilisateur: Long): List<Tache>
     @Query("""
-            SELECT t
-            FROM Tache t
-            JOIN FETCH t.utilisateur
-            ORDER BY t.dateCreation DESC
+        SELECT t
+        FROM Tache t
+        JOIN FETCH t.utilisateur
+        ORDER BY t.dateCreation DESC
     """)
     fun findAllAvecUtilisateur(): List<Tache>
 }
