@@ -1,0 +1,12 @@
+package org.ldv.todoapp2.controller
+
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.GetMapping
+
+@Controller
+class MesTachesController {
+    @GetMapping("/mes-taches")
+    fun mesTaches(): String {
+        return "mes-taches"
+    }
+}
