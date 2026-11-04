@@ -16,6 +16,12 @@
         dans l'application TodoApp.
     </p>
 
+    <div th:if="${messageSucces}" class="alert alert-success" role="alert" th:text="${messageSucces}"></div>
+    <div th:if="${messageErreur}" class="alert alert-danger" role="alert" th:text="${messageErreur}"></div>
+    <a th:href="@{/admin/utilisateurs/creer}" class="btn btn-primary mb-3">
+        <i class="bi bi-person-plus"></i> Créer un utilisateur
+    </a>
+
     <!-- Aucun utilisateur enregistré -->
     <div th:if="${#lists.isEmpty(listeUtilisateurs)}"
          class="alert alert-info"
@@ -56,6 +62,7 @@
                         <th>Prénom</th>
                         <th>Adresse électronique</th>
                         <th>Rôle</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
 
@@ -87,6 +94,10 @@
                                       : 'text-bg-primary'"
                                   th:text="${utilisateur.role.nom}">
                             </span>
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/utilisateurs/{id}/modifier(id=${utilisateur.idUtilisateur})}"
+                               class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil-square"></i> Modifier</a>
                         </td>
                     </tr>
                     </tbody>

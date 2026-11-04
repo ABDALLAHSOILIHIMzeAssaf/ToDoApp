@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: base(~{::content}, ${idUtilisateur != null ? 'TodoApp-Modifier un utilisateur' : 'TodoApp-Créer un utilisateur'}, 'admin/utilisateurs')}">
+<div th:fragment="content" class="container py-4">
+    <h1 class="mb-4">
+        <i class="bi" th:classappend="${idUtilisateur != null} ? 'bi-pencil-square' : 'bi-person-plus'"></i>
+        <span th:text="${idUtilisateur != null} ? 'Modifier un utilisateur' : 'Créer un utilisateur'"></span>
+    </h1>
+    <div class="card shadow-sm"><div class="card-body">
+        <p class="text-muted">Les champs marqués d'un astérisque (*) sont obligatoires.</p>
+        <form th:action="${idUtilisateur != null} ? @{/admin/utilisateurs/{id}/modifier(id=${idUtilisateur})} : @{/admin/utilisateurs/creer}"
+              th:object="${utilisateurForm}" method="post">
+            <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
+                L'utilisateur n'a pas été enregistré. Vérifiez les champs indiqués.
+                <ul th:if="${#fields.hasGlobalErrors()}" class="mb-0">
+                    <li th:each="erreur : ${#fields.globalErrors()}" th:text="${erreur}"></li>
+                </ul>
+            </div>
+            <div class="mb-3">
+                <label for="nom" class="form-label">Nom *</label>
+                <input type="text" maxlength="100" pattern=".*\S.*" title="Saisissez au moins un caractère autre qu’un espace." th:field="*{nom}" class="form-control" required
+                       th:classappend="${#fields.hasErrors('nom')} ? 'is-invalid' : ''"
+                       aria-describedby="nom-erreur">
+                <div id="nom-erreur" th:if="${#fields.hasErrors('nom')}"
+                     class="invalid-feedback" th:errors="*{nom}"></div>
+            </div>
+            <div class="mb-3">
+                <label for="prenom" class="form-label">Prénom *</label>
+                <input type="text" maxlength="100" pattern=".*\S.*" title="Saisissez au moins un caractère autre qu’un espace." th:field="*{prenom}" class="form-control" required
+                       th:classappend="${#fields.hasErrors('prenom')} ? 'is-invalid' : ''"
+                       aria-describedby="prenom-erreur">
+                <div id="prenom-erreur" th:if="${#fields.hasErrors('prenom')}"
+                     class="invalid-feedback" th:errors="*{prenom}"></div>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Adresse électronique *</label>
+                <input type="email" maxlength="255" th:field="*{email}" class="form-control" required
+                       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                       aria-describedby="email-erreur">
+                <div id="email-erreur" th:if="${#fields.hasErrors('email')}"
+                     class="invalid-feedback" th:errors="*{email}"></div>
+            </div>
+            <div class="mb-4">
+                <label for="roleId" class="form-label">Rôle *</label>
+                <select th:field="*{roleId}" class="form-select" required
+                        th:classappend="${#fields.hasErrors('roleId')} ? 'is-invalid' : ''"
+                        aria-describedby="role-erreur">
+                    <option value="">Choisir un rôle</option>
+                    <option th:each="role : ${roles}" th:value="${role.idRole}" th:text="${role.nom}"></option>
+                </select>
+                <div id="role-erreur" th:if="${#fields.hasErrors('roleId')}" class="invalid-feedback">
+                    Sélectionnez un rôle existant.
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i>
+                <span th:text="${idUtilisateur != null} ? 'Enregistrer les modifications' : 'Enregistrer l’utilisateur'"></span>
+            </button>
+            <a th:href="@{/admin/utilisateurs}" class="btn btn-outline-secondary ms-2">Annuler</a>
+        </form>
+    </div></div>
+</div>
+</html>
