@@ -98,6 +98,8 @@
                         <td>
                             <a th:href="@{/admin/utilisateurs/{id}/modifier(id=${utilisateur.idUtilisateur})}"
                                class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil-square"></i> Modifier</a>
+                            <a th:href="@{/admin/utilisateurs/{id}/supprimer(id=${utilisateur.idUtilisateur})}"
+                               class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Supprimer</a>
                         </td>
                     </tr>
                     </tbody>

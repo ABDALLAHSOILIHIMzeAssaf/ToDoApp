@@ -7,6 +7,9 @@ import org.springframework.data.repository.query.Param
 
 interface TacheRepository : JpaRepository<Tache, Long> {
 
+    fun countByUtilisateur_IdUtilisateur(idUtilisateur: Long): Long
+
+
     @Query("SELECT t FROM Tache t JOIN FETCH t.utilisateur WHERE t.idTache = :id")
     fun findByIdAvecUtilisateur(@Param("id") id: Long): Tache?
 

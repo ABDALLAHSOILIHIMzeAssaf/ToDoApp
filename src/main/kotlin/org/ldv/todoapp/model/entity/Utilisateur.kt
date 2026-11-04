@@ -26,4 +26,9 @@ open class Utilisateur(
     // Repère technique réservé au jeu de démonstration, absent des formulaires.
     @Column(name = "reference_demo", unique = true, length = 50)
     open var referenceDemo: String? = null
-)
+) {
+    // La suppression du propriétaire supprime ses tâches, mais jamais son rôle.
+    // REMOVE uniquement : une réaffectation ne doit pas supprimer la tâche.
+    @OneToMany(mappedBy = "utilisateur", cascade = [CascadeType.REMOVE])
+    open var taches: MutableList<Tache> = mutableListOf()
+}

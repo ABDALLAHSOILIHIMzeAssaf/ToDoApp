@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: base(~{::content}, 'TodoApp-Supprimer un utilisateur', 'admin/utilisateurs')}">
+<div th:fragment="content" class="container py-4">
+    <h1 class="mb-4"><i class="bi bi-trash"></i> Supprimer un utilisateur</h1>
+    <div class="alert alert-warning" role="alert">
+        Confirmez-vous la suppression de cet utilisateur ?
+        <strong>Toutes ses tâches seront également supprimées.</strong>
+    </div>
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h2 class="h5 mb-0" th:text="${utilisateurASupprimer.prenom + ' ' + utilisateurASupprimer.nom}"></h2>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-4">
+                <dt class="col-sm-4">Identifiant</dt>
+                <dd class="col-sm-8" th:text="${utilisateurASupprimer.idUtilisateur}"></dd>
+                <dt class="col-sm-4">Adresse électronique</dt>
+                <dd class="col-sm-8" th:text="${utilisateurASupprimer.email}"></dd>
+                <dt class="col-sm-4">Rôle</dt>
+                <dd class="col-sm-8" th:text="${utilisateurASupprimer.role.nom}"></dd>
+                <dt class="col-sm-4">Nombre de tâches associées</dt>
+                <dd class="col-sm-8" th:text="${nombreTaches}"></dd>
+            </dl>
+            <p th:if="${utilisateurActif != null and utilisateurASupprimer.idUtilisateur == utilisateurActif.idUtilisateur}"
+               class="text-danger">
+                Vous supprimez le compte actuellement sélectionné. La sélection de session sera effacée.
+            </p>
+            <p class="text-muted">
+                Les données de démonstration supprimées seront recréées au prochain démarrage.
+                Les utilisateurs et tâches ajoutés pendant vos essais ne seront pas restaurés.
+            </p>
+            <form th:action="@{/admin/utilisateurs/{id}/supprimer(id=${utilisateurASupprimer.idUtilisateur})}" method="post">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Confirmer la suppression
+                </button>
+                <a th:href="@{/admin/utilisateurs}" class="btn btn-outline-secondary ms-2">Annuler</a>
+            </form>
+        </div>
+    </div>
+</div>
+</html>

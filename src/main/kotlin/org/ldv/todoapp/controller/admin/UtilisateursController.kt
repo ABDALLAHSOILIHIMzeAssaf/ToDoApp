@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession
 import org.ldv.todoapp.controller.form.UtilisateurForm
 import org.ldv.todoapp.model.entity.Role
 import org.ldv.todoapp.model.entity.Utilisateur
+import org.ldv.todoapp.model.repository.TacheRepository
 import org.ldv.todoapp.model.repository.RoleRepository
 import org.ldv.todoapp.model.repository.UtilisateurRepository
 import org.springframework.dao.DataIntegrityViolationException
@@ -16,7 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 @Controller
 class UtilisateursController(
     private val utilisateurRepository: UtilisateurRepository,
-    private val roleRepository: RoleRepository
+    private val roleRepository: RoleRepository,
+    private val tacheRepository: TacheRepository
 ) {
     @GetMapping("/admin/utilisateurs")
     fun utilisateurs(model: Model, session: HttpSession, redirectAttributes: RedirectAttributes): String {
@@ -93,6 +95,36 @@ class UtilisateursController(
         }
         preparerFormulaire(model, id)
         return "admin/formulaire-utilisateur"
+    }
+
+    @GetMapping("/admin/utilisateurs/{id}/supprimer")
+    fun confirmationSuppression(@PathVariable("id") id: Long, model: Model,
+        session: HttpSession, redirectAttributes: RedirectAttributes): String {
+        if (!estAdministrateur(session)) return refuserAcces(redirectAttributes)
+        val utilisateur = utilisateurRepository.findByIdAvecRole(id)
+            ?: return signalerUtilisateurAbsent(redirectAttributes)
+        model.addAttribute("utilisateurASupprimer", utilisateur)
+        model.addAttribute("nombreTaches", tacheRepository.countByUtilisateur_IdUtilisateur(id))
+        return "admin/confirmation-suppression-utilisateur"
+    }
+
+    @PostMapping("/admin/utilisateurs/{id}/supprimer")
+    fun supprimerUtilisateur(@PathVariable("id") id: Long,
+        session: HttpSession, redirectAttributes: RedirectAttributes): String {
+        // Revérifier l'accès et l'existence au POST, même après la confirmation.
+        if (!estAdministrateur(session)) return refuserAcces(redirectAttributes)
+        val utilisateur = utilisateurRepository.findByIdAvecRole(id)
+            ?: return signalerUtilisateurAbsent(redirectAttributes)
+
+        // Le repository effectue cette suppression et la cascade JPA dans une transaction.
+        utilisateurRepository.delete(utilisateur)
+        redirectAttributes.addFlashAttribute("messageSucces",
+            "L'utilisateur et ses tâches ont bien été supprimés.")
+        if (session.getAttribute("utilisateurId") == id) {
+            session.removeAttribute("utilisateurId")
+            return "redirect:/mes-taches"
+        }
+        return "redirect:/admin/utilisateurs"
     }
 
     private fun preparerFormulaire(model: Model, id: Long? = null) {
