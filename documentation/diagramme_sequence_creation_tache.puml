@@ -1,0 +1,129 @@
+@startuml
+title TodoApp - Création d'une tâche personnelle
+autonumber
+hide footbox
+skinparam shadowing false
+
+actor "Utilisateur" as U
+boundary "Navigateur" as N
+control "Spring MVC" as MVC
+control "MesTachesController" as C
+entity "HttpSession" as S
+entity "UtilisateurRepository" as UR
+entity "TacheRepository" as TR
+database "MariaDB" as DB
+boundary "Thymeleaf\nformulaire-tache.html\nmes-taches.html + base" as V
+
+note over U, N
+  Point de départ : mes-taches.html est affiché.
+  Le lien « Créer une tâche » est visible
+  lorsqu'un utilisateurActif est présent.
+end note
+
+note over MVC, UR
+  Avant chaque méthode de route, UserSessionAdvice
+  enrichit le modèle avec utilisateurs et utilisateurActif
+  via findAll(), la session et findByIdAvecRole().
+  Ces appels communs sont condensés dans cette note.
+end note
+
+== Affichage du formulaire ==
+U -> N : Cliquer sur « Créer une tâche »
+N -> MVC : GET /mes-taches/creer
+MVC -> C : formulaireCreation(model, session, redirectAttributes)
+C -> C : rechercherUtilisateurActif(session)
+C -> S : getAttribute("utilisateurId")
+S --> C : Identifiant sélectionné ou null
+opt Identifiant présent
+  C -> UR : findById(utilisateurId)
+  UR --> C : Utilisateur ou résultat vide
+  opt Compte supprimé
+    C -> S : removeAttribute("utilisateurId")
+  end
+end
+alt Aucun utilisateur valide
+  C -> C : Ajouter le flash messageErreur
+  C --> MVC : "redirect:/mes-taches"
+  MVC --> N : Redirection HTTP vers /mes-taches
+  ref over N, V : Réafficher la liste selon la séquence finale, avec messageErreur
+else Utilisateur valide
+  C -> C : model.addAttribute("tacheForm", TacheForm())
+  C --> MVC : "formulaire-tache"
+  MVC -> V : Rendre le formulaire avec tacheForm et utilisateurActif
+  V --> MVC : HTML du formulaire de création
+  MVC --> N : Réponse HTML
+  N --> U : Afficher titre, description et échéance
+
+  == Saisie et traitement du formulaire ==
+  U -> N : Saisir les champs et cliquer sur « Enregistrer la tâche »
+  N -> N : Contrôles HTML du titre\nrequired, maxlength=255, pattern
+  alt Saisie refusée par le navigateur
+    N --> U : Signaler le champ à corriger
+  else Formulaire envoyé
+    N -> MVC : POST /mes-taches/creer\ntitre, description, dateEcheance
+    MVC -> MVC : Lier les paramètres à TacheForm\nConvertir la date ISO, alimenter BindingResult
+    MVC -> C : creerTache(formulaire, bindingResult,\nsession, redirectAttributes)
+    C -> C : rechercherUtilisateurActif(session)
+    C -> S : getAttribute("utilisateurId")
+    S --> C : Identifiant courant ou null
+    opt Identifiant présent
+      C -> UR : findById(utilisateurId)
+      UR --> C : Utilisateur ou résultat vide
+      opt Compte supprimé
+        C -> S : removeAttribute("utilisateurId")
+      end
+    end
+    alt Aucun utilisateur valide au POST
+      C -> C : Ajouter le flash messageErreur
+      C --> MVC : "redirect:/mes-taches"
+      MVC --> N : Redirection HTTP vers /mes-taches
+      ref over N, V : Réafficher la liste selon la séquence finale, avec messageErreur
+    else Utilisateur valide au POST
+      C -> C : validerFormulaire(formulaire, bindingResult)\nTitre non blanc et longueur <= 255
+      alt bindingResult.hasErrors()
+        C --> MVC : "formulaire-tache"
+        MVC -> V : Rendre le formulaire avec les valeurs reçues\net les erreurs de titre ou de conversion de date
+        V --> MVC : HTML avec messages d'erreur
+        MVC --> N : Réponse HTML
+        N --> U : Afficher les erreurs et permettre la correction
+      else Saisie valide
+        C -> C : Construire Tache\ntitre.trim(), description.trim().ifBlank { null }\ndateEcheance, utilisateur courant
+        note right of C
+          Valeurs initiales de l'entité
+          idTache = null (généré à l'insertion)
+          dateCreation = LocalDateTime.now()
+          terminee = false
+          referenceDemo = null
+        end note
+        C -> TR : save(tache)
+        TR -> DB : Insérer la tâche via JPA / Hibernate
+        DB --> TR : Identifiant généré
+        TR --> C : Tâche enregistrée
+        C -> C : addFlashAttribute("messageSucces",\n"La tâche a bien été créée.")
+        C --> MVC : "redirect:/mes-taches"
+        MVC --> N : Redirection HTTP vers /mes-taches
+
+        == Affichage de la liste après redirection ==
+        N -> MVC : GET /mes-taches
+        MVC -> C : mesTaches(model, session)
+        C -> S : getAttribute("utilisateurId")
+        S --> C : Identifiant courant ou null
+        alt Identifiant présent
+          C -> TR : findByUtilisateur_IdUtilisateur(utilisateurId)
+          TR -> DB : Rechercher les tâches de cet utilisateur
+          DB --> TR : Tâches, dont la nouvelle tâche si même utilisateur
+          TR --> C : List<Tache>
+        else Identifiant absent
+          C -> C : taches = emptyList()
+        end
+        C -> C : model.addAttribute("taches", taches)
+        C --> MVC : "mes-taches"
+        MVC -> V : Rendre mes-taches.html dans le layout base\ntaches, utilisateurActif et message flash
+        V --> MVC : HTML de la liste et du message
+        MVC --> N : Réponse HTML
+        N --> U : Afficher les tâches de l'utilisateur\net « La tâche a bien été créée. »
+      end
+    end
+  end
+end
+@enduml
