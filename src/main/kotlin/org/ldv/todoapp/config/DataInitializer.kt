@@ -56,39 +56,41 @@ class DataInitializer(
         }
 
         // 2. Création des utilisateurs
-        val alice = initialiserUtilisateur("alice", "Alice-TP3",
+        val roleUser = null
+        val alice = initialiserUtilisateur("alice", "Alice-TP3!",
             Utilisateur(
                 nom = "Martin",
                 prenom = "Alice",
                 email = "alice@example.com",
-                role = null
+                role = roleUser
             )
         )
 
-        val bob = initialiserUtilisateur("bob", "Bob-TP3",
+        val bob = initialiserUtilisateur("bob", "Bob-TP3!",
             Utilisateur(
                 nom = "Durand",
                 prenom = "Bob",
                 email = "bob@example.com",
-                role = null
+                role = roleUser
             )
         )
 
-        val claire = initialiserUtilisateur("claire", "Claire-TP3",
+        val claire = initialiserUtilisateur("claire", "Claire-TP3!",
             Utilisateur(
                 nom = "Bernard",
                 prenom = "Claire",
                 email = "claire@example.com",
-                role = null
+                role = roleUser
             )
         )
 
-        val admin = initialiserUtilisateur("admin", "Admin-TP3",
+        val roleAdmin = null
+        val admin = initialiserUtilisateur("admin", "Admin-TP3!",
             Utilisateur(
                 nom = "Admin",
                 prenom = "TodoApp",
                 email = "admin@example.com",
-                role = null
+                role = roleAdmin
             )
         )
 
